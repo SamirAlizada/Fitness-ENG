@@ -1,0 +1,39 @@
+{% include "index.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Tarif Panel</h2>
+    <table class="table text-center">
+        <thead>
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Month</th>
+                <th scope="col">Price</th>
+                <th scope="col">Operations</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tariff in tariffs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ tariff.name }}</td>
+                <td>{{ tariff.type }}</td>
+                <td>{{ tariff.month_duration }}</td>
+                <td>${{ tariff.price }}</td>
+                <td>
+                    <a href="{% url 'update_tariffs' tariff.pk %}" class="btn btn-sm btn-info">Edit</a>
+                    <a href="{% url 'delete_tariffs' tariff.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this tariff?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<br>
+<br>
+
+{% endblock content %}

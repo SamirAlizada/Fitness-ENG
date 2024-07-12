@@ -1,0 +1,49 @@
+{% include "index.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Bar List</h2>
+    <form method="GET" class="mb-3">
+        <div class="form-inline mb-4">
+            <input type="text" name="q" class="form-control mr-sm-2" style="width: 300px;"
+                placeholder="Enter a search name">
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+            &nbsp;
+            <a href="{% url 'bar_list' %}">
+                <button class="btn btn-outline-secondary my-2 my-sm-0" type="button">
+                    Reset
+                </button>
+            </a>
+        </div>
+    </form>
+    {% if bars %}
+    <table class="table text-center">
+        <thead>
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Stock Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bar in bars %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ bar.product_name }}</td>
+                <td>${{ bar.price }}</td>
+                <td>{{ bar.stock_number }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No products matching your search were found.</p>
+    {% endif %}
+</div>
+
+<br>
+<br>
+
+{% endblock content %}

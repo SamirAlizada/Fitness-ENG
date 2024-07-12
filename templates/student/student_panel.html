@@ -1,0 +1,102 @@
+{% include "index.html" %}
+
+{% block content %}
+
+<style>
+    .end-date-today {
+        color: red;
+        font-weight: bold;
+    }
+
+    .end-date-past {
+        color: grey;
+    }
+
+    .renewed {
+        color: grey;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+    /* Custom class for lighter table header */
+    .thead-light-custom {
+        background-color: #e9ecef; /* Light grey background */
+        color: #212529; /* Dark text color for contrast */
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Member Panel</h2>
+    <form method="GET" class="mb-3">
+        <div class="form-inline mb-4">
+            <input type="text" name="q" class="form-control mr-sm-2" style="width: 300px;" placeholder="Enter a search name">
+            <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+            &nbsp;
+            <a href="{% url 'student_panel' %}">
+                <button class="btn btn-outline-secondary my-2 my-sm-0" type="button">Reset</button>
+            </a>
+        </div>
+    </form>
+    {% if grouped_students.items %}
+    {% for month, data in grouped_students.items %}
+    <div class="row mb-2">
+        <div class="col-md-6 text-left">
+            <h4>{{ month }}</h4>
+        </div>
+        <div class="col-md-6 text-right">
+            <h4>Total Payment: ${{ data.total_payment }}</h4>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover text-center mb-5">
+            <thead class="thead-light-custom">
+                <tr>
+                    <th scope="col">№</th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Registration Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Months</th>
+                    <th scope="col">Trainer</th>
+                    <th scope="col">Payment</th>
+                    <th scope="col">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in data.students %}
+                <tr class="{% if student.is_renewed %}
+                        renewed
+                    {% elif student.end_date == today and student.tariffs.type != 'Daily' %}
+                    end-date-today
+                {% elif student.end_date < today %}
+                    end-date-past
+                {% elif student.tariffs.type == 'Daily' and student.end_date != today %}
+                        end-date-past
+                    {% endif %}">
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ student.full_name }}</td>
+                    <td>{{ student.registration_date|date:"d/m/Y" }}</td>
+                    <td>{{ student.end_date|date:"d/m/Y" }}</td>
+                    <td>{{ student.tariffs }}</td>
+                    <td>{{ student.trainer|default:"---" }}</td>
+                    <td>${{ student.payment }}</td>
+                    <td>
+                        <a href="{% url 'renew_student' student.pk %}" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to renew this student?')">Renew</a>
+                        <a href="{% url 'update_student' student.pk %}" class="btn btn-sm btn-info">Edit</a>
+                        <a href="{% url 'delete_student' student.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this student?')">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+    {% else %}
+        <p class="text-center">No members were found matching your search.</p>
+    {% endif %}
+</div>
+
+<br>
+<br>
+{% endblock content %}
