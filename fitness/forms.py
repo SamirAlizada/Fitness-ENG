@@ -1,20 +1,5 @@
 from django import forms
 from .models import Student, Trainer, Bar, BarSold, Tariffs
-from datetime import datetime, date
-
-class CustomDateInput(forms.DateInput):
-    input_type = 'text'
-    format = '%d/%m/%Y'
-
-    def __init__(self, *args, **kwargs):
-        kwargs['format'] = self.format
-        super().__init__(*args, **kwargs)
-
-    def format_value(self, value):
-        if value:
-            if isinstance(value, (datetime, date)):
-                return value.strftime(self.format)
-        return value
 
 class TariffsForm(forms.ModelForm):
     class Meta:
@@ -41,8 +26,6 @@ class TariffsForm(forms.ModelForm):
         return cleaned_data
 
 class TrainerForm(forms.ModelForm):
-    registration_date = forms.CharField(widget=CustomDateInput(attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'}))
-
     class Meta:
         model = Trainer
         fields = ['full_name', 'registration_date', 'monthly_fee', 'student_fee']
@@ -52,24 +35,11 @@ class TrainerForm(forms.ModelForm):
             'monthly_fee': 'Maaş',
             'student_fee': 'Tələbə Haqqı',
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.instance.pk:  # If create new form
-            self.fields['registration_date'].initial = date.today().strftime('%d/%m/%Y')
-    
-    def clean_registration_date(self):
-        registration_date = self.cleaned_data['registration_date']
-        if isinstance(registration_date, str):
-            try:
-                return datetime.strptime(registration_date, '%d/%m/%Y').date()
-            except ValueError:
-                raise forms.ValidationError("Enter the date in DD/MM/YYYY format.")
-        return registration_date
+        widgets = {
+            'registration_date' : forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class StudentForm(forms.ModelForm):
-    registration_date = forms.CharField(widget=CustomDateInput(attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'}))
-
     class Meta:
         model = Student
         fields = ['full_name', 'registration_date', 'tariffs', 'trainer', 'is_renewed']
@@ -80,20 +50,9 @@ class StudentForm(forms.ModelForm):
             'trainer': 'Trainer',
             'is_renewed': 'Renew',
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.instance.pk:  # If create new form
-            self.fields['registration_date'].initial = date.today().strftime('%d/%m/%Y')
-    
-    def clean_registration_date(self):
-        registration_date = self.cleaned_data['registration_date']
-        if isinstance(registration_date, str):
-            try:
-                return datetime.strptime(registration_date, '%d/%m/%Y').date()
-            except ValueError:
-                raise forms.ValidationError("Enter the date in DD/MM/YYYY format")
-        return registration_date
+        widgets = {
+            'registration_date' : forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class BarForm(forms.ModelForm):
     class Meta:
@@ -106,8 +65,6 @@ class BarForm(forms.ModelForm):
         }
 
 class BarSoldForm(forms.ModelForm):
-    date = forms.CharField(widget=CustomDateInput(attrs={'class': 'form-control', 'placeholder': 'DD/MM/YYYY'}))
-
     class Meta:
         model = BarSold
         fields = ['product_name', 'date', 'price', 'count']
@@ -117,17 +74,6 @@ class BarSoldForm(forms.ModelForm):
             'price': 'Price',
             'count': 'Count',
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.instance.pk:  # If create new form
-            self.fields['date'].initial = date.today().strftime('%d/%m/%Y')
-    
-    def clean_date(self):
-        date = self.cleaned_data['date']
-        if isinstance(date, str):
-            try:
-                return datetime.strptime(date, '%d/%m/%Y').date()
-            except ValueError:
-                raise forms.ValidationError("Enter the date in DD/MM/YYYY format")
-        return date
+        widgets = {
+            'date' : forms.DateInput(attrs={'type': 'date'}),
+        }
